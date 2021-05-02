@@ -1,1 +1,1 @@
-# MIPShangman
+# MIPS_hangman
