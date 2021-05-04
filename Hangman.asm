@@ -56,6 +56,7 @@ main:
 	beq $t2, 3, word3
 	beq $t2, 4, word4
 	beq $t2, 5, word5
+	move $s7, $t2
 
 gameLogic:
 	li $v0, 4
@@ -66,10 +67,13 @@ gameLogic:
 	syscall
 	move $t1, $v0
 	
-	# inst $t3 as flag as false 
+	# inst $t3 as flag as false  *MUST FIX BUG*
 	li $t3, 0
-	la $s0, wordOne
-	lb $s1, ($s0)
+	beq $s7, 1, word1
+	beq $s7, 2, word2
+	beq $s7, 3, word3
+	beq $s7, 4, word4
+	beq $s7, 5, word5
 	
 checking:
 	# out of bound exception
