@@ -27,7 +27,7 @@ twoarmRow: .asciiz "       /l\\  |\n"
 onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
 wordOne: .asciiz "Senpai"
-wordTwo: .asciiz "enabcd"
+wordTwo: .asciiz "Benabc"
 wordThree: .asciiz "Bryant"
 wordFour: .asciiz "Itzyxo"
 wordFive: .asciiz "Luisxo"
@@ -52,15 +52,19 @@ main:
 	
 	li $v0, 5
 	syscall
-	move $t2, $v0
+	move $s7, $v0
+	
+	#save return address
+	la  $ra, gameLogic
+	
+wordChoice:
 	
 	# inst word chosen
-	beq $t2, 1, word1
-	beq $t2, 2, word2
-	beq $t2, 3, word3
-	beq $t2, 4, word4
-	beq $t2, 5, word5
-	move $s7, $t2
+	beq $s7, 1, word1
+	beq $s7, 2, word2
+	beq $s7, 3, word3
+	beq $s7, 4, word4
+	beq $s7, 5, word5
 
 gameLogic:
 	#check if you won game
@@ -78,11 +82,7 @@ gameLogic:
 	
 	# inst $t3 as flag as false 
 	li $t3, 0
-	beq $s7, 1, word1
-    	beq $s7, 2, word2
-    	beq $s7, 3, word3
-    	beq $s7, 4, word4
-   	beq $s7, 5, word5
+	jal wordChoice
 	
 	#int i = 0 
 	#counter used as index for pos in word
@@ -102,6 +102,7 @@ checking:
 	j checking
 	
 revealWord:
+	#keeps track of how many letters are revealed
 	addi $t6, $t6, 1
 	sw $t6, win
 
@@ -130,27 +131,27 @@ word1:
 	# setting pointer to word
 	la $s0, wordOne
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 word2:
 	la $s0, wordTwo
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 word3:
 	la $s0, wordThree
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 word4:
 	la $s0, wordFour
 	lb $s1, ($s0)
-	j gameLogic	
+	jr $ra	
 	
 word5:
 	la $s0, wordFive
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 initGallow: 
 
