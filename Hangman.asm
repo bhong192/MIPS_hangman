@@ -26,7 +26,7 @@ twoarmRow: .asciiz "       /l\\  |\n"
 onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
 wordOne: .asciiz "Senpai"
-wordTwo: .asciiz "Benabc"
+wordTwo: .asciiz "enabcd"
 wordThree: .asciiz "Bryant"
 wordFour: .asciiz "Itzyxo"
 wordFive: .asciiz "Luisxo"
@@ -58,6 +58,7 @@ main:
 	beq $t2, 3, word3
 	beq $t2, 4, word4
 	beq $t2, 5, word5
+	move $s7, $t2
 
 gameLogic:
 	#ask for a letter
@@ -71,8 +72,11 @@ gameLogic:
 	
 	# inst $t3 as flag as false 
 	li $t3, 0
-	la $s0, wordOne
-	lb $s1, ($s0)
+	beq $s7, 1, word1
+    	beq $s7, 2, word2
+    	beq $s7, 3, word3
+    	beq $s7, 4, word4
+   	beq $s7, 5, word5
 	
 	#int i = 0 
 	#counter used as index for pos in word
