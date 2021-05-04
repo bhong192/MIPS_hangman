@@ -25,7 +25,7 @@ twoarmRow: .asciiz "       /l\\  |\n"
 onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
 wordOne: .asciiz "Senpai"
-wordTwo: .asciiz "Benabc"
+wordTwo: .asciiz "Benadc"
 wordThree: .asciiz "Bryant"
 wordFour: .asciiz "Itzyxo"
 wordFive: .asciiz "Luisxo"
@@ -111,7 +111,7 @@ word2:
 	
 word3:
 	la $s0, wordThree
-lb $s1, ($s0)
+	lb $s1, ($s0)
 	j gameLogic
 	
 word4:
