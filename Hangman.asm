@@ -5,10 +5,11 @@
 .data
 
 welcome: .asciiz "\nWelcome to Hangman! Guess one letter at a time to uncover the word before the person gets hung. \n"
-welcome1: .asciiz "\nPlease select a random number from 1-5"
+welcome1: .asciiz "\nPlease select a random number from 1-5: "
 
 prompt: .asciiz "\nPlease enter an input: "
 lostPrompt: .asciiz "\n You have killed the man :("
+winPrompt: .asciiz "\n You have saved the man :)"
 topBeam: .asciiz "\n	+---+\n"
 secondRow: .asciiz "	|   |\n"
 thirdRow: .asciiz "	    |\n"
@@ -17,6 +18,7 @@ fifthRow: .asciiz "	    |\n"
 sixthRow: .asciiz "	    |\n"
 bottomBeam: .asciiz "	========="
 correctPrompt: .asciiz "\nCorrect!"
+newline: .asciiz "\n"
 
 headRow: .asciiz "        0   |\n"
 bodyRow: .asciiz "	l   |\n"
@@ -29,6 +31,8 @@ wordTwo: .asciiz "Benadc"
 wordThree: .asciiz "Bryant"
 wordFour: .asciiz "Itzyxo"
 wordFive: .asciiz "Luisxo"
+guessArray: .byte  '_',' ','_',' ','_',' ','_',' ','_',' ','_',' '
+win: .word 0
 
 .text
 
@@ -48,17 +52,26 @@ main:
 	
 	li $v0, 5
 	syscall
-	move $t2, $v0
+	move $s7, $v0
+	
+	#save return address
+	la  $ra, gameLogic
+	
+wordChoice:
 	
 	# inst word chosen
-	beq $t2, 1, word1
-	beq $t2, 2, word2
-	beq $t2, 3, word3
-	beq $t2, 4, word4
-	beq $t2, 5, word5
-	move $s7, $t2
+	beq $s7, 1, word1
+	beq $s7, 2, word2
+	beq $s7, 3, word3
+	beq $s7, 4, word4
+	beq $s7, 5, word5
 
 gameLogic:
+	#check if you won game
+	lw $t6, win
+	beq $t6, 6, winGame
+
+	#ask for a letter
 	li $v0, 4
 	la $a0, prompt
 	syscall 
@@ -67,30 +80,46 @@ gameLogic:
 	syscall
 	move $t1, $v0
 	
-	# inst $t3 as flag as false  *MUST FIX BUG*
+	# inst $t3 as flag as false 
 	li $t3, 0
-	beq $s7, 1, word1
-	beq $s7, 2, word2
-	beq $s7, 3, word3
-	beq $s7, 4, word4
-	beq $s7, 5, word5
+	jal wordChoice
+	
+	#int i = 0 
+	#counter used as index for pos in word
+	move $s3, $0
 	
 checking:
 	# out of bound exception
 	beq $s1, 0, wrongGuess
-	# set falg to true if found
+	# set flag to true if found
 	seq $t3, $s1, $t1
 	# revealWord if flag is true and exit loop
 	bgt $t3, 0, revealWord
 	# increment to the nxt char to check 
 	addi $s0, $s0, 1
+	addi $s3, $s3, 1
 	lb $s1, ($s0)
 	j checking
 	
 revealWord:
+	#keeps track of how many letters are revealed
+	addi $t6, $t6, 1
+	sw $t6, win
+
+	#print correct prompt
 	la $a0, correctPrompt
 	li $v0, 4
 	syscall 
+	
+	#reveal letter
+	la $s2, guessArray
+	#account for spaces in array
+	sll $t4, $s3, 1
+	#get address for corresponding pos
+	add $t5,$s2,$t4
+	#save new char in pos
+	sb $t1, ($t5)
+	
 	jal initGallow 
 	j gameLogic 
 wrongGuess:
@@ -102,29 +131,38 @@ word1:
 	# setting pointer to word
 	la $s0, wordOne
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 word2:
 	la $s0, wordTwo
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 word3:
 	la $s0, wordThree
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 word4:
 	la $s0, wordFour
 	lb $s1, ($s0)
-	j gameLogic	
+	jr $ra	
 	
 word5:
 	la $s0, wordFive
 	lb $s1, ($s0)
-	j gameLogic
+	jr $ra
 	
 initGallow: 
+
+	la $a0, newline		 
+	li $v0, 4
+	syscall
+	
+	#print array
+	la $a0, guessArray		 
+	li $v0, 4
+	syscall
 	
 	li $v0, 4
 	la $a0, topBeam
@@ -232,12 +270,21 @@ initGallow:
 		li $v0, 4
 		la $a0, twolegRow
 		syscall
-		j exit
+		j lostGame
+		
 	
-exit:
+lostGame:
 	la $a0, lostPrompt
 	li $v0, 4
 	syscall
+	j exit	
+winGame:
+	la $a0, winPrompt
+	li $v0, 4
+	syscall
+	j exit	
+
+exit:
 	
 	li $v0, 10
 	syscall 
