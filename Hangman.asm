@@ -9,6 +9,7 @@ welcome1: .asciiz "\nPlease select a random number from 1-5: "
 
 prompt: .asciiz "\nPlease enter an input: "
 lostPrompt: .asciiz "\n You have killed the man :("
+winPrompt: .asciiz "\n You have saved the man :)"
 topBeam: .asciiz "\n	+---+\n"
 secondRow: .asciiz "	|   |\n"
 thirdRow: .asciiz "	    |\n"
@@ -31,6 +32,7 @@ wordThree: .asciiz "Bryant"
 wordFour: .asciiz "Itzyxo"
 wordFive: .asciiz "Luisxo"
 guessArray: .byte  '_',' ','_',' ','_',' ','_',' ','_',' ','_',' '
+win: .word 0
 
 .text
 
@@ -60,6 +62,10 @@ main:
 	beq $t2, 5, word5
 
 gameLogic:
+	#check if you won game
+	lw $t6, win
+	beq $t6, 6, winGame
+
 	#ask for a letter
 	li $v0, 4
 	la $a0, prompt
@@ -92,6 +98,9 @@ checking:
 	j checking
 	
 revealWord:
+	addi $t6, $t6, 1
+	sw $t6, win
+
 	#print correct prompt
 	la $a0, correctPrompt
 	li $v0, 4
@@ -256,12 +265,21 @@ initGallow:
 		li $v0, 4
 		la $a0, twolegRow
 		syscall
-		j exit
+		j lostGame
+		
 	
-exit:
+lostGame:
 	la $a0, lostPrompt
 	li $v0, 4
 	syscall
+	j exit	
+winGame:
+	la $a0, winPrompt
+	li $v0, 4
+	syscall
+	j exit	
+
+exit:
 	
 	li $v0, 10
 	syscall 
