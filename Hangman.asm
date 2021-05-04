@@ -5,7 +5,7 @@
 .data
 
 welcome: .asciiz "\nWelcome to Hangman! Guess one letter at a time to uncover the word before the person gets hung. \n"
-welcome1: .asciiz "\nPlease select a random number from 1-5"
+welcome1: .asciiz "\nPlease select a random number from 1-5: "
 
 prompt: .asciiz "\nPlease enter an input: "
 lostPrompt: .asciiz "\n You have killed the man :("
@@ -17,6 +17,7 @@ fifthRow: .asciiz "	    |\n"
 sixthRow: .asciiz "	    |\n"
 bottomBeam: .asciiz "	========="
 correctPrompt: .asciiz "\nCorrect!"
+newline: .asciiz "\n"
 
 headRow: .asciiz "        0   |\n"
 bodyRow: .asciiz "	l   |\n"
@@ -29,6 +30,7 @@ wordTwo: .asciiz "Benabc"
 wordThree: .asciiz "Bryant"
 wordFour: .asciiz "Itzyxo"
 wordFive: .asciiz "Luisxo"
+guessArray: .byte  '_',' ','_',' ','_',' ','_',' ','_',' ','_',' '
 
 .text
 
@@ -56,9 +58,9 @@ main:
 	beq $t2, 3, word3
 	beq $t2, 4, word4
 	beq $t2, 5, word5
-	move $s7, $t2
 
 gameLogic:
+	#ask for a letter
 	li $v0, 4
 	la $a0, prompt
 	syscall 
@@ -67,30 +69,43 @@ gameLogic:
 	syscall
 	move $t1, $v0
 	
-	# inst $t3 as flag as false  *MUST FIX BUG*
+	# inst $t3 as flag as false 
 	li $t3, 0
-	beq $s7, 1, word1
-	beq $s7, 2, word2
-	beq $s7, 3, word3
-	beq $s7, 4, word4
-	beq $s7, 5, word5
+	la $s0, wordOne
+	lb $s1, ($s0)
+	
+	#int i = 0 
+	#counter used as index for pos in word
+	move $s3, $0
 	
 checking:
 	# out of bound exception
 	beq $s1, 0, wrongGuess
-	# set falg to true if found
+	# set flag to true if found
 	seq $t3, $s1, $t1
 	# revealWord if flag is true and exit loop
 	bgt $t3, 0, revealWord
 	# increment to the nxt char to check 
 	addi $s0, $s0, 1
+	addi $s3, $s3, 1
 	lb $s1, ($s0)
 	j checking
 	
 revealWord:
+	#print correct prompt
 	la $a0, correctPrompt
 	li $v0, 4
 	syscall 
+	
+	#reveal letter
+	la $s2, guessArray
+	#account for spaces in array
+	sll $t4, $s3, 1
+	#get address for corresponding pos
+	add $t5,$s2,$t4
+	#save new char in pos
+	sb $t1, ($t5)
+	
 	jal initGallow 
 	j gameLogic 
 wrongGuess:
@@ -111,7 +126,7 @@ word2:
 	
 word3:
 	la $s0, wordThree
-lb $s1, ($s0)
+	lb $s1, ($s0)
 	j gameLogic
 	
 word4:
@@ -125,6 +140,15 @@ word5:
 	j gameLogic
 	
 initGallow: 
+
+	la $a0, newline		 
+	li $v0, 4
+	syscall
+	
+	#print array
+	la $a0, guessArray		 
+	li $v0, 4
+	syscall
 	
 	li $v0, 4
 	la $a0, topBeam
