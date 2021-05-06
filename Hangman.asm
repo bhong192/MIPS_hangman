@@ -27,10 +27,10 @@ twoarmRow: .asciiz "       /l\\  |\n"
 onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
 wordOne: .asciiz "Senpai"
-wordTwo: .asciiz "Benadc"
-wordThree: .asciiz "Bryant"
-wordFour: .asciiz "Itzyxo"
-wordFive: .asciiz "Luisxo"
+wordTwo: .asciiz "Fossil"
+wordThree: .asciiz "Kraken"
+wordFour: .asciiz "GitHub"
+wordFive: .asciiz "Quartz"
 guessArray: .byte  '_',' ','_',' ','_',' ','_',' ','_',' ','_',' '
 win: .word 0
 
