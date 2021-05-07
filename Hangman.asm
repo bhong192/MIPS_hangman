@@ -27,7 +27,7 @@ twoarmRow: .asciiz "       /l\\  |\n"
 onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
 wordOne: .asciiz "Senpai"
-wordTwo: .asciiz "Fossil"
+wordTwo: .asciiz "Action"
 wordThree: .asciiz "Kraken"
 wordFour: .asciiz "GitHub"
 wordFive: .asciiz "Quartz"
@@ -285,6 +285,5 @@ winGame:
 	j exit	
 
 exit:
-	
 	li $v0, 10
 	syscall 
