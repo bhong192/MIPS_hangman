@@ -19,6 +19,7 @@ sixthRow: .asciiz "	    |\n"
 bottomBeam: .asciiz "	========="
 correctPrompt: .asciiz "\nCorrect!"
 newline: .asciiz "\n"
+dupPrompt: .asciiz "\nYou Entered a Duplcate input!"
 
 headRow: .asciiz "        0   |\n"
 bodyRow: .asciiz "	l   |\n"
@@ -27,7 +28,7 @@ twoarmRow: .asciiz "       /l\\  |\n"
 onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
 wordOne: .asciiz "Senpai"
-wordTwo: .asciiz "Fossil"
+wordTwo: .asciiz "Action"
 wordThree: .asciiz "Kraken"
 wordFour: .asciiz "GitHub"
 wordFive: .asciiz "Quartz"
@@ -53,6 +54,13 @@ main:
 	li $v0, 5
 	syscall
 	move $s7, $v0
+	
+	#allocate 50 bytes of memory for array
+	li $a0, 50
+	li $v0, 9
+	syscall
+	move $s6, $v0
+	move $s5, $s6
 	
 	#save return address
 	la  $ra, gameLogic
@@ -80,6 +88,19 @@ gameLogic:
 	syscall
 	move $t1, $v0
 	
+	#resent index j
+	move $t7, $0
+	move $s4, $s5
+	#check if the new input is a duplicate
+	bne $s6, $s5, checkDup
+	
+	nodup:
+	#save new letter to array
+	sb $t1, ($s6)
+	
+	#increament pointer
+	addi $s6, $s6, 1
+	
 	# inst $t3 as flag as false 
 	li $t3, 0
 	jal wordChoice
@@ -100,6 +121,31 @@ checking:
 	addi $s3, $s3, 1
 	lb $s1, ($s0)
 	j checking
+	
+checkDup:
+	#loops through entire array to check if the new input is the same
+	beq $t7, 50, nodup
+	
+	#load current letter in array
+	lb $t8, ($s4)
+	
+	#check if input is the same to letter
+	seq $t8, $t8, $t1
+	beq $t8, 1, dup
+	
+	#increament pointer and index
+	addi $t7, $t7, 1
+	addi $s4, $s4, 1
+	j checkDup
+	
+dup:
+
+	# print welcome prompt
+	li $v0, 4
+	la $a0, dupPrompt
+	syscall
+	
+	j gameLogic
 	
 revealWord:
 	#keeps track of how many letters are revealed
@@ -285,6 +331,5 @@ winGame:
 	j exit	
 
 exit:
-	
 	li $v0, 10
 	syscall 
