@@ -7,7 +7,7 @@
 welcome: .asciiz "\nWelcome to Hangman! Guess one letter at a time to uncover the word before the person gets hung. \n"
 welcome1: .asciiz "\nPlease select a random number from 1-5: "
 
-prompt: .asciiz "\nPlease enter an input: "
+prompt: .asciiz "\nPlease enter a lowercase letter: "
 lostPrompt: .asciiz "\n You have killed the man :("
 winPrompt: .asciiz "\n You have saved the man :)"
 topBeam: .asciiz "\n	+---+\n"
@@ -19,7 +19,8 @@ sixthRow: .asciiz "	    |\n"
 bottomBeam: .asciiz "	========="
 correctPrompt: .asciiz "\nCorrect!"
 newline: .asciiz "\n"
-dupPrompt: .asciiz "\nYou Entered a Duplcate input!"
+dupPrompt: .asciiz "\nYou entered a duplcate letter!"
+invalidPrompt: .asciiz "\nPlease enter a valid input: "
 
 headRow: .asciiz "        0   |\n"
 bodyRow: .asciiz "	l   |\n"
@@ -27,11 +28,11 @@ onearmRow: .asciiz "       /l   |\n"
 twoarmRow: .asciiz "       /l\\  |\n"
 onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
-wordOne: .asciiz "Senpai"
-wordTwo: .asciiz "Action"
-wordThree: .asciiz "Kraken"
-wordFour: .asciiz "GitHub"
-wordFive: .asciiz "Quartz"
+wordOne: .asciiz "senpai"
+wordTwo: .asciiz "action"
+wordThree: .asciiz "kraken"
+wordFour: .asciiz "github"
+wordFive: .asciiz "quartz"
 guessArray: .byte  '_',' ','_',' ','_',' ','_',' ','_',' ','_',' '
 win: .word 0
 
@@ -54,6 +55,10 @@ main:
 	li $v0, 5
 	syscall
 	move $s7, $v0
+	
+	la  $ra, main
+	bgt $s7, 5, invalidGuess
+	blt $s7, 1, invalidGuess
 	
 	#allocate 50 bytes of memory for array
 	li $a0, 50
@@ -87,6 +92,10 @@ gameLogic:
 	li $v0, 12
 	syscall
 	move $t1, $v0
+	
+	#check if letter
+	bgt $t1, 123, invalidGuess
+	blt $t1, 96, invalidGuess
 	
 	#resent index j
 	move $t7, $0
@@ -172,6 +181,13 @@ wrongGuess:
 	addi $t0, $t0, 1
 	jal initGallow
 	j gameLogic
+	
+invalidGuess:
+	#print prompt
+	la $a0, invalidPrompt
+	li $v0, 4
+	syscall
+	jr $ra
 	
 word1:
 	# setting pointer to word
