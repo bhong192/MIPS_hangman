@@ -56,6 +56,7 @@ main:
 	syscall
 	move $s7, $v0
 	
+	#check for valid word choice
 	la  $ra, main
 	bgt $s7, 5, invalidGuess
 	blt $s7, 1, invalidGuess
@@ -93,9 +94,9 @@ gameLogic:
 	syscall
 	move $t1, $v0
 	
-	#check if letter
-	bgt $t1, 123, invalidGuess
-	blt $t1, 96, invalidGuess
+	#check if letter is valid (97-122)
+	bgt $t1, 122, invalidGuess
+	blt $t1, 97, invalidGuess
 	
 	#resent index j
 	move $t7, $0
