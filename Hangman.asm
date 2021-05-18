@@ -30,7 +30,7 @@ onelegRow: .asciiz "       /    |\n"
 twolegRow: .asciiz "       / \\  |\n"
 wordOne: .asciiz "senpai"
 wordTwo: .asciiz "action"
-wordThree: .asciiz "kraken"
+wordThree: .asciiz "forces"
 wordFour: .asciiz "github"
 wordFive: .asciiz "quartz"
 guessArray: .byte  '_',' ','_',' ','_',' ','_',' ','_',' ','_',' '
@@ -52,14 +52,14 @@ main:
 	la $a0, welcome1
 	syscall 
 	
-	li $v0, 5
+	li $v0, 12
 	syscall
 	move $s7, $v0
 	
 	#check for valid word choice
 	la  $ra, main
-	bgt $s7, 5, invalidGuess
-	blt $s7, 1, invalidGuess
+	bgt $s7, 53, invalidGuess
+	blt $s7, 49, invalidGuess
 	
 	#allocate 50 bytes of memory for array
 	li $a0, 50
@@ -74,11 +74,11 @@ main:
 wordChoice:
 	
 	# inst word chosen
-	beq $s7, 1, word1
-	beq $s7, 2, word2
-	beq $s7, 3, word3
-	beq $s7, 4, word4
-	beq $s7, 5, word5
+	beq $s7, 49, word1
+	beq $s7, 50, word2
+	beq $s7, 51, word3
+	beq $s7, 52, word4
+	beq $s7, 53, word5
 
 gameLogic:
 	#check if you won game
